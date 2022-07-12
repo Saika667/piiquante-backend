@@ -2,10 +2,11 @@
 const express = require('express');
 //contiendra l'application, on appel la méthode express() ce qui permettra de créer une application express
 const app = express();
-//importation du model
-const Users = require('./models/users');
-//importation de bcryt (hachage MDP)
-const bcrypt = require('bcrypt');
+
+const path = require('path');
+
+const userRoutes = require('./routes/users');
+const sauceRoutes = require('./routes/sauces');
 
 //import de mongoose
 const mongoose = require('mongoose');
@@ -35,29 +36,10 @@ app.use((req, res, next) => {
     next();
 });
 
-//route pour création de compte
-app.post('/api/auth/signup', (req, res, next) => {
-  //hachage du mot de passe avant de sauvegarder
-  req.body.password = bcrypt.hashSync(req.body.password, 10);
-  //création d'une nouvelle instance du modèle user avec "new Users"
-  const user = new Users({
-      //"..." est un racourci en JS permet de copier les champs du body de la requête
-      ...req.body
-  });
-  // méthode save permet d'enregistrer l'objet dans la base de donnée et retourne une promise
-  user.save()
-  .then(() => res.status(201).json({ message: 'Création de compte effectuée !'}))
-  //error dans json est écrit sous forme de raccourci c'est la même chose que 'error: error'
-  .catch(error => res.status(400).json({ error }));
-});
-
-//route pour connexion
-app.post('/api/auth/login', (req, res, next) => {
-  req.body.password = bcrypt.hashSync(req.body.password, 10);
-  Users.findOne({ ...req.body })
-      .then(user => res.status(200).json(user))
-      .catch(error => res.status(404).json({ error }));
-});
+app.use('/api/auth', userRoutes);
+app.use('/api/sauces', sauceRoutes);
+//utilisation du middleware static fournit par express
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //permet d'exporter l'application/constante pour qu'elle soit accessible depuis les autres fichiers (notamment le serveur node)
 module.exports = app;

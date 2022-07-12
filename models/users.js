@@ -1,5 +1,6 @@
 // import de mongoose dans ce fichier car on en a besoin pour créer le schèma/model
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
 //Schema est une fonction mise à disposition par mongoose
 const userSchema = mongoose.Schema({
@@ -7,5 +8,7 @@ const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
+
+userSchema.plugin(uniqueValidator);
 //premier argument passé à model c'est le nom du model et le deuxième argument c'est le schéma
 module.exports = mongoose.model('Users', userSchema);
