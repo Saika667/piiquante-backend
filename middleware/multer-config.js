@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
     //les espaces peuvent poser problème côté serveur donc remplacement des espaces par '_'
     const name = file.originalname.split(' ').join('_');
     //remplace l'extension par string vide
-    //regex veut dire "après le dernier point"
+    //regex veut dire "après le dernier point" (point compris)
     const filename = name.replace(/\.[^/.]+$/, "");
     //on doit appliquer une extension au fichier mais on y a pas accès
     //on a accès au mimetype (image/jpg ou image/png)

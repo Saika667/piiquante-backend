@@ -1,6 +1,7 @@
 const Sauce = require('../models/sauces');
 const fs = require('fs');
 
+//création de la sauce
 exports.createSauce = (req, res, next) => {
     //parse de l'objet car l'objet qui est envoyé dans la requête est sous forme de chaine de caractère
     const sauceObject = JSON.parse(req.body.sauce);
@@ -24,6 +25,7 @@ exports.createSauce = (req, res, next) => {
     .catch(error => { res.status(400).json( { error })})
 };
 
+//modification de la sauce
 exports.modifySauce = (req, res, next) => {
     //extraction de l'objet dans le corps de la requête
     //le format de la requête n'est le même selon si l'utilisateur fournit un fichier ou non
@@ -37,7 +39,6 @@ exports.modifySauce = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         //':' = else
     } : { ...req.body };
-    
     //suppression de l'userId de la requête
     //pour éviter que quelqu'un crée un objet à son nom puis le modifie pour le reassigner à quelqu'un d'autre
     delete sauceObject._userId;
@@ -61,6 +62,7 @@ exports.modifySauce = (req, res, next) => {
         });
 };
 
+//supression sauce si la sauce appartient à la personne qui souhaite la supprimer
 exports.deleteSauce = (req, res, next) => {
     //récupération de l'objet en base de donnée
     Sauce.findOne({ _id: req.params.id})
@@ -85,6 +87,7 @@ exports.deleteSauce = (req, res, next) => {
        });
 };
 
+//récupère une sauce
 exports.getOneSauce = (req, res, next) => {
     //on a accès au segment dynamique par req.params.id
     //findOne permet de trouver un objet à l'inverse find permet de trouver tout les objets
@@ -93,6 +96,7 @@ exports.getOneSauce = (req, res, next) => {
       .catch(error => res.status(404).json({ error }));
 };
 
+//récupère la liste de toutes les sauces
 exports.getAllSauces = (req, res, next) => {
     //méthode find mise à disposition par le modèle, qui retourne une promise (donc .then et .catch)
     Sauce.find()
@@ -101,6 +105,7 @@ exports.getAllSauces = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
+//ajout d'un avis sur sauce
 exports.likeUnlike = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
       .then(sauce => {
@@ -119,7 +124,7 @@ exports.likeUnlike = (req, res, next) => {
                 if (sauce.usersDisliked.includes(userId)) {
                     sauce.usersDisliked.splice(sauce.usersDisliked.indexOf(userId), 1);
                     --sauce.dislikes;
-                }else if (sauce.usersLiked.includes(userId)) {
+                } else if (sauce.usersLiked.includes(userId)) {
                     sauce.usersLiked.splice(sauce.usersLiked.indexOf(userId), 1);
                     --sauce.likes;
                 }
