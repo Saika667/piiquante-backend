@@ -3,14 +3,29 @@ const express = require('express');
 //contiendra l'application, on appel la méthode express() ce qui permettra de créer une application express
 const app = express();
 
+// Gestion des headers
+const helmet = require('helmet');
+
 const path = require('path');
+
+// Récupération de la config via le .env situé dans le dossier config
+require('dotenv').config({ path : './config/.env' });
+
+// Ajout d'express rate limit, permet de limiter le nombre de requêtes dans un temps défini
+const rateLimiter = require('express-rate-limit');
+const limiter = rateLimiter({
+	windowMs: 1 * 60 * 1000, // 1 minute
+	max: 50, // Limiter l'ip à faire 50 requêtes par window (ici 1mn)
+	standardHeaders: true, // Retourne `RateLimit-*` dans les headers
+	legacyHeaders: false, // Désactiver les headers `X-RateLimit-*`
+})
 
 const userRoutes = require('./routes/users');
 const sauceRoutes = require('./routes/sauces');
 
 //import de mongoose
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://lepape:1234@cluster0.p3uhk.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(process.env.MONGO,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -35,6 +50,14 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
+
+// Autorise la récupération de ressources depuis le même site
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "same-site" }
+}));
+
+// Appliquer le limiteur
+app.use(limiter);
 
 app.use('/api/auth', userRoutes);
 app.use('/api/sauces', sauceRoutes);
