@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
     //appel de la fonction callback le premier argument null pour dire qu'il n'y a pas eut d'erreur à ce niveau là
     //création du nom du fichier entier : name + Date.now() + '.' + extension
     //Date.now() est un timestamp afin de rendre le nom du fichier le plus unique possible se sera à la milliseconde prés
-    callback(null, filename + Date.now() + '.' + extension);
+    callback(null, name + Date.now() + '.' + extension);
   }
 });
 
